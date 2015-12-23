@@ -5,6 +5,7 @@ import sbt._
 import xsbtUtil.{ util => xu }
 import xsbtWebApp.WebAppPlugin
 import xsbtWebApp.WebAppProcessor
+import xsbtWebApp.WebAppProcessors
 
 object ConcatProcessorPlugin extends AutoPlugin {
 	object autoImport {
@@ -37,7 +38,7 @@ object ConcatProcessorPlugin extends AutoPlugin {
 	def singleProcessor(buildDir:File, baseName:String, suffix:String):WebAppProcessor = {
 		val filter	= GlobFilter(s"*.${suffix}") && -DirectoryFilter
 		
-		(WebAppProcessor selective filter) { input =>
+		(WebAppProcessors selective filter) { input =>
 			val output	= buildDir / s"${baseName}.${suffix}"
 			val files	= input map xu.pathMapping.getFile
 			
