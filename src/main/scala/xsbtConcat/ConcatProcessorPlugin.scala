@@ -9,8 +9,13 @@ import xsbtWebApp.WebAppProcessors
 
 object ConcatProcessorPlugin extends AutoPlugin {
 	object autoImport {
+		case class ConcatType(
+			suffix:String,
+			header:Option[String] = None,
+			footer:Option[String] = None
+		)
 		val concatProcessor		= taskKey[WebAppProcessor]("concatenation processor")
-		val concatSuffixes		= settingKey[Seq[String]]("suffixes to combine")
+		val concatTypes			= settingKey[Seq[ConcatType]]("suffixes to combine")
 		val concatName			= settingKey[String]("name of concatenated files, without suffix")
 		val concatBuildDir		= settingKey[File]("where to put concatenated sources")
 	}
@@ -22,35 +27,34 @@ object ConcatProcessorPlugin extends AutoPlugin {
 	
 	override lazy val projectSettings:Seq[Def.Setting[_]]	=
 			Vector(
-				concatSuffixes		:= Seq("js", "css"),
+				concatTypes			:= Seq(ConcatType("js"), ConcatType("css")),
 				concatName			:= "concat",
 				concatBuildDir		:= Keys.target.value / "concat",
 				
 				concatProcessor		:= {
-					val mkProcessor:String=>WebAppProcessor	=
-							suffix => singleProcessor(concatBuildDir.value, concatName.value, suffix)
 					Function chain (
-						concatSuffixes.value map mkProcessor
+						concatTypes.value map singleProcessor(concatBuildDir.value, concatName.value)
 					)
 				}
 			)
 			
-	def singleProcessor(buildDir:File, baseName:String, suffix:String):WebAppProcessor = {
-		val filter	= GlobFilter(s"*.${suffix}") && -DirectoryFilter
+	def singleProcessor(buildDir:File, baseName:String)(typ:ConcatType):WebAppProcessor = {
+		val filter	= GlobFilter(s"*.${typ.suffix}") && -DirectoryFilter
 		
 		(WebAppProcessors selective filter) { input =>
-			val output	= buildDir / s"${baseName}.${suffix}"
+			val output	= buildDir / s"${baseName}.${typ.suffix}"
 			val files	= input map xu.pathMapping.getFile
 			
-			concatTexts(files, output)
+			concatTexts(files, typ.header, typ.footer, output)
 			
 			Vector(output -> output.getName)
 		}
 	}
 	
-	def concatTexts(files:Seq[File], to:File) {
-		val charset	= IO.utf8
-		val string	= files map { IO read (_, charset) } mkString "\n"
+	def concatTexts(files:Seq[File], header:Option[String], footer:Option[String], to:File) {
+		val charset		= IO.utf8
+		val contents	= files map { IO read (_, charset) }
+		val string		= header.toVector ++ contents ++ footer.toVector mkString "\n"
 		IO write (to, string, charset)
 	}
 }
