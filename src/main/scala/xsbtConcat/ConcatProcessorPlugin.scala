@@ -7,23 +7,25 @@ import xsbtWebApp.WebAppPlugin
 import xsbtWebApp.WebAppProcessor
 import xsbtWebApp.WebAppProcessors
 
-object ConcatProcessorPlugin extends AutoPlugin {
-	object autoImport {
-		case class ConcatType(
-			suffix:String,
-			header:Option[String] = None,
-			footer:Option[String] = None
-		)
-		val concatProcessor		= taskKey[WebAppProcessor]("concatenation processor")
-		val concatTypes			= settingKey[Seq[ConcatType]]("suffixes to combine")
-		val concatName			= settingKey[String]("name of concatenated files, without suffix")
-		val concatBuildDir		= settingKey[File]("where to put concatenated sources")
-	}
-	import autoImport._
+object Import {
+	case class ConcatType(
+		suffix:String,
+		header:Option[String] = None,
+		footer:Option[String] = None
+	)
+	val concatProcessor		= taskKey[WebAppProcessor]("concatenation processor")
+	val concatTypes			= settingKey[Seq[ConcatType]]("suffixes to combine")
+	val concatName			= settingKey[String]("name of concatenated files, without suffix")
+	val concatBuildDir		= settingKey[File]("where to put concatenated sources")
+}
 	
+object ConcatProcessorPlugin extends AutoPlugin {
 	override val requires:Plugins		= WebAppPlugin
 	
 	override val trigger:PluginTrigger	= allRequirements
+	
+	lazy val autoImport	= Import
+	import autoImport._
 	
 	override lazy val projectSettings:Seq[Def.Setting[_]]	=
 			Vector(
