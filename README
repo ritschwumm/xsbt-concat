@@ -1,0 +1,19 @@
+To build this code, get and install SBT from 
+    https://github.com/sbt/sbt
+
+Get and install these library/libraries before building:
+    https://github.com/ritschwumm/xsbt-util
+    https://github.com/ritschwumm/xsbt-webapp
+    
+Use these commands to build:
+    git clone git@github.com:ritschwumm/xsbt-concat.git
+    cd xsbt-concat
+    sbt publish-local
+
+Add the plugin to your project in project/plugins.sbt:
+
+    addSbtPlugin("de.djini" % "xsbt-concat" % <version>)
+    
+Include domc in the webapp pipeline:
+
+    webappPipeline      += concatProcessor
