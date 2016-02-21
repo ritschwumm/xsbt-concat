@@ -3,9 +3,9 @@ package xsbtConcat
 import sbt._
 
 import xsbtUtil.{ util => xu }
-import xsbtWebApp.WebAppPlugin
-import xsbtWebApp.WebAppProcessor
-import xsbtWebApp.WebAppProcessors
+import xsbtAsset.AssetPlugin
+import xsbtAsset.AssetProcessor
+import xsbtAsset.AssetProcessors
 
 object Import {
 	case class ConcatType(
@@ -13,14 +13,14 @@ object Import {
 		header:Option[String] = None,
 		footer:Option[String] = None
 	)
-	val concatProcessor		= taskKey[WebAppProcessor]("concatenation processor")
+	val concatProcessor		= taskKey[AssetProcessor]("concatenation processor")
 	val concatTypes			= settingKey[Seq[ConcatType]]("suffixes to combine")
 	val concatName			= settingKey[String]("name of concatenated files, without suffix")
 	val concatBuildDir		= settingKey[File]("where to put concatenated sources")
 }
 	
 object ConcatProcessorPlugin extends AutoPlugin {
-	override val requires:Plugins		= WebAppPlugin
+	override val requires:Plugins		= AssetPlugin
 	
 	override val trigger:PluginTrigger	= allRequirements
 	
@@ -40,10 +40,10 @@ object ConcatProcessorPlugin extends AutoPlugin {
 				}
 			)
 			
-	def singleProcessor(buildDir:File, baseName:String)(typ:ConcatType):WebAppProcessor = {
+	def singleProcessor(buildDir:File, baseName:String)(typ:ConcatType):AssetProcessor = {
 		val filter	= GlobFilter(s"*.${typ.suffix}") && -DirectoryFilter
 		
-		(WebAppProcessors selective filter) { input =>
+		(AssetProcessors selective filter) { input =>
 			val output	= buildDir / s"${baseName}.${typ.suffix}"
 			val files	= input map xu.pathMapping.getFile
 			
