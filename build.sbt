@@ -2,7 +2,7 @@ sbtPlugin		:= true
 
 name			:= "xsbt-concat"
 organization	:= "de.djini"
-version			:= "1.0.0"
+version			:= "1.0.1"
 
 scalacOptions	++= Seq(
 	"-deprecation",
@@ -20,4 +20,4 @@ scalacOptions	++= Seq(
 
 conflictManager	:= ConflictManager.strict
 addSbtPlugin("de.djini" % "xsbt-util"	% "1.0.0")
-addSbtPlugin("de.djini" % "xsbt-asset"	% "1.0.0")
+addSbtPlugin("de.djini" % "xsbt-asset"	% "1.0.1")
